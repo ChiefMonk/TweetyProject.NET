@@ -1,128 +1,238 @@
-﻿using System.Collections;
-using TweetyProject.NET.Commons.Extensions;
+﻿namespace TweetyProject.NET.Commons;
 
-namespace TweetyProject.NET.Commons;
-
-public abstract class SingleSetSignature<T> : ISignature, IEnumerable<T>
+public abstract class SingleSetSignature<T> : Signature, IEnumerable<T>
 {
-	/**
-	 * Creates a new empty signature.
-	 */
-	protected SingleSetSignature()
-	{
-		Formulas = new HashSet<T>();
-	}
+    public abstract void add(object obj);
 
-	/**
-	 * Creates a new signature with the given set of elements.
-	 * @param formulas set of formulas
-	 */
-	protected SingleSetSignature(ISet<T> formulas)
-	{
-		Formulas = formulas;
-	}
+    /// <summary>
+    /// The set of formulas that represents this signature.
+    /// </summary>
+    protected internal ISet<T> Formulas;
 
-	/**
-	 * The set of formulas that represents this signature.
-	 */
-	protected ISet<T>? Formulas
-	{
-		get;
-		set;
-	}
+    /// <summary>
+    /// Creates a new empty signature.
+    /// </summary>
+    public SingleSetSignature()
+    {
+        Formulas = new HashSet<T>();
+    }
 
-	public virtual bool IsSubSignature(ISignature? other)
-	{
-		if (other is null || Formulas is null)
-			return false;
+    /// <summary>
+    /// Creates a new signature with the given set of elements. </summary>
+    /// <param name="formulas"> set of formulas  </param>
+    public SingleSetSignature(ISet<T> formulas)
+    {
+        this.Formulas = formulas;
+    }
 
-		if (other is not SingleSetSignature<T> signature)
-			return false;
+    public virtual bool IsSubSignature(Signature Other)
+    {
+        if (!(Other is SingleSetSignature))
+        {
+            return false;
+        }
+// JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in C#:
+// ORIGINAL LINE: SingleSetSignature<?> o = (SingleSetSignature<?>) other;
+        SingleSetSignature<object> O = (SingleSetSignature<object>) Other;
+        if (!O.Formulas.ContainsAll(this.Formulas))
+        {
+            return false;
+        }
+        return true;
+    }
 
-		return signature.Formulas != null && signature.Formulas.DoesFirstContainAllSecond(Formulas);
-	}
+    public virtual bool IsOverlappingSignature(Signature Other)
+    {
+        if (!(Other is SingleSetSignature))
+        {
+            return false;
+        }
+// JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in C#:
+// ORIGINAL LINE: SingleSetSignature<?> o = (SingleSetSignature<?>) other;
+        SingleSetSignature<object> O = (SingleSetSignature<object>) Other;
+        foreach (object Obj in O.Formulas)
+        {
+            if (this.Formulas.Contains(Obj))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public virtual bool IsOverlappingSignature(ISignature? other)
-	{
-		if (other is null || Formulas is null)
-			return false;
+    public virtual void AddSignature(Signature Other)
+    {
+        if (!(Other is SingleSetSignature))
+        {
+            return;
+        }
+// JAVA TO C# CONVERTER TASK: Most Java annotations will not have direct .NET equivalent attributes:
+// ORIGINAL LINE: @SuppressWarnings("unchecked") SingleSetSignature<T> sig = (SingleSetSignature<T>) other;
+        SingleSetSignature<T> Sig = (SingleSetSignature<T>) Other;
+        this.Formulas.AddAll(Sig.Formulas);
+    }
 
-		if (other is not SingleSetSignature<T> signature)
-			return false;
+    public override int GetHashCode()
+    {
+        const int Prime = 31;
+        int Result = 1;
+        Result = Prime * Result + ((Formulas == null) ? 0 : Formulas.GetHashCode());
+        return Result;
+    }
 
-		return signature.Formulas is not null && signature.Formulas.Any(entry => Formulas.Contains(entry));
-	}
+    public override bool Equals(object Obj)
+    {
+        if (this == Obj)
+        {
+            return true;
+        }
+        if (Obj == null)
+        {
+            return false;
+        }
+        if (this.GetType() != Obj.GetType())
+        {
+            return false;
+        }
+// JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in C#:
+// ORIGINAL LINE: SingleSetSignature<?> other = (SingleSetSignature<?>) obj;
+        SingleSetSignature<object> Other = (SingleSetSignature<object>) Obj;
+        if (Formulas == null)
+        {
+            if (Other.Formulas != null)
+            {
+                return false;
+            }
+        }
+        else if (!Formulas.SetEquals(Other.Formulas))
+        {
+            return false;
+        }
+        return true;
+    }
 
-	public virtual void AddSignature(ISignature? other)
-	{
-		if (other is null)
-			return;
+    public virtual void AddAll<T1>(ICollection<T1> C)
+    {
+        foreach (object Obj in C)
+        {
+            this.Add(Obj);
+        }
+    }
 
-		if (other is not SingleSetSignature<T> signature)
-			return;
+// JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in C#:
+// ORIGINAL LINE: @Override public void add(Object... objects) throws IllegalArgumentException
+    public virtual void Add(params object[] Objects)
+    {
+        foreach (object F in Objects)
+        {
+            this.Add(F);
+        }
+    }
 
-		Formulas ??= new HashSet<T>();
+    public virtual void Remove(object O)
+    {
+        Formulas.Remove(O);
+    }
 
-		Formulas.AddAll(signature.Formulas);
-	}
+    public virtual bool Empty
+    {
+        get
+        {
+            return Formulas.Count == 0;
+        }
+    }
 
-	public int HashCode()
-	{
-		throw new NotImplementedException();
-	}
+    public virtual void RemoveAll<T1>(ICollection<T1> C)
+    {
+        foreach (object Obj in C)
+        {
+            this.Remove(Obj);
+        }
 
-	public void Add(object obj)
-	{
-		throw new NotImplementedException();
-	}
+    }
+    /// <summary>
+    /// retainAll
+    /// </summary>
+    /// <param name="c"> Collection </param>
+    public virtual void RetainAll<T1>(ICollection<T1> C)
+    {
+        ICollection<object> ToBeRemoved = new HashSet<object>();
+        foreach (object Obj in this)
+        {
+            if (!C.Contains(Obj))
+            {
+                ToBeRemoved.Add(Obj);
+            }
+        }
+        this.RemoveAll(ToBeRemoved);
+    }
 
-	public void AddAll<T1>(ICollection<T1> c)
-	{
-		throw new NotImplementedException();
-	}
+    public virtual void Clear()
+    {
+        Formulas = new HashSet<T>();
+    }
 
-	public void Add(params object[] objects)
-	{
-		throw new NotImplementedException();
-	}
+    public virtual IEnumerator<T> GetEnumerator()
+    {
+        return Formulas.GetEnumerator();
+    }
 
-	public bool IsEmpty()
-	{
-		throw new NotImplementedException();
-	}
+    public override string ToString()
+    {
+        return Formulas.ToString();
+    }
 
-	public void Remove(object obj)
-	{
-		throw new NotImplementedException();
-	}
+    /// <summary>
+    /// Returns the number of elements in this signature, 
+    /// i.e. the the size of the set that represents the signature. </summary>
+    /// <returns> size of the signature </returns>
+    public virtual int Size()
+    {
+        return Formulas.Count;
+    }
 
-	public void RemoveAll<T1>(ICollection<T1> c)
-	{
-		throw new NotImplementedException();
-	}
+    /// <summary>
+    /// Returns true if this signature contains the specified formula. </summary>
+    /// <param name="f"> a formula </param>
+    /// <returns> true if the signature contains f, false otherwise </returns>
+    public virtual bool Contains(T F)
+    {
+        return Formulas.Contains(F);
+    }
 
-	public void Clear()
-	{
-		throw new NotImplementedException();
-	}
+    /// <summary>
+    /// Returns true if this signature contains all of the elements 
+    /// in the specified collection. </summary>
+    /// <param name="c"> collection of formulas </param>
+    /// <returns> true if the signature contains c, false otherwise </returns>
+    public virtual bool ContainsAll(ICollection<T> C)
+    {
+        foreach (T F in C)
+        {
+            if (!Formulas.Contains(F))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	public ISignature Clone()
-	{
-		throw new NotImplementedException();
-	}
+    /// <summary>
+    /// Returns an array containing all of the elements in this signature. </summary>
+    /// <returns> signature as array </returns>
+    public virtual object[] ToArray()
+    {
+        return Formulas.ToArray();
+    }
 
-	object ICloneable.Clone()
-	{
-		return Clone();
-	}
+    /// <summary>
+    /// Returns a collection containing all of the elements in this signature. </summary>
+    /// <returns> formulas of this signature </returns>
+    public virtual ICollection<T> ToCollection()
+    {
+        return Formulas;
+    }
 
-	public IEnumerator<T> GetEnumerator()
-	{
-		throw new NotImplementedException();
-	}
+    public override abstract SingleSetSignature<T> Clone();
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
 }

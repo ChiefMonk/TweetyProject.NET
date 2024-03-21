@@ -6,12 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Analysis\" />
-    <Folder Include="Examples\" />
-    <Folder Include="Streams\" />
-    <Folder Include="Postulates\" />
-    <Folder Include="Util\" />
-  </ItemGroup>
-
 </Project>
